@@ -9,7 +9,7 @@
 
 NSRC = boot.s
 CSRC = $(shell find ./src -name "*.c")
-OBJ = kern.o boot.o utils.o
+OBJ = kern.o boot.o printFuncs.o keyboard.o gdt.o
 CFLAGS = -m32 -ffreestanding -fno-builtin -fno-builtin -fno-builtin -nostdlib -nodefaultlibs
 CC = gcc
 AC = nasm
@@ -23,7 +23,7 @@ run:
 
 build:
 	gcc -m32 -ffreestanding -fno-builtin -fno-builtin -fno-builtin -nostdlib -nodefaultlibs -c kern.c
-	nasm -f elf32 boot.s -o boot.o
+	nasm -f elf32 boot.s -o boot.o 
 
 link:
 	ld -m elf_i386 -T linker.ld -o omex.bin kern.o boot.o

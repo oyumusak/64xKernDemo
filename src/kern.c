@@ -1,63 +1,40 @@
-#include "./inc/utils.h"
+#include "inc/kern.h"
 
+
+//Global Variables!
 unsigned short *termBuff;
-const unsigned int	vgaWidth = 80;
-const unsigned int	vgaHeight = 25;
+const unsigned int	vgaWidth = VGAWIDTH;
+const unsigned int	vgaHeight = VGAHEIGHT;
+unsigned short termLines[VGAHEIGHT * 2][VGAWIDTH];
+unsigned short (*termLinesBegin)[VGAWIDTH];
 unsigned int	prompt;
-const unsigned int	promptMax = 80 * 25;
+unsigned int	lineCount;
+const unsigned int	promptMax = VGAHEIGHT * VGAWIDTH;
+unsigned char colorSet;
+struct IDT_entry IDT[256];
 
-extern	int	strlen(char *str);
-extern	unsigned char *strdup(unsigned char *str);
-extern	unsigned char port_in(unsigned short nbr);
-extern	void	port_out(unsigned short portNo, unsigned char val);
-
-void enable_cursor(unsigned char cursor_start, unsigned char cursor_end)
+static inline unsigned char vga_entry_color(enum vga_color fg, enum vga_color bg)
 {
-	//renk
-	port_out(0x3D4, 0x0F);
-
-	//yatay konum
-	port_out(0x3D5, 1);
-
-	//dikey konum
-	port_out(0x3D6, 1);
-
-	//yazma komutu
-	port_out(0x3D7, 0x0c);
-	//port_out(0x3D4, 0x0A);
-	/*
-	unsigned char	a;
-
-	a = port_in(0x3D5);
-	putnbr((int)a);
-
-	port_out(0x3D4, 0x0A);
-	port_out(0x3D5, (port_in(0x3D5) & 0xC0) | cursor_start);
- 
-	port_out(0x3D4, 0x0B);
-	port_out(0x3D5, (port_in(0x3D5) & 0xE0) | cursor_end);
-	*/
+	return fg | bg << 4;
 }
 
 int	kmain()
 {
 	prompt = 0;
-	termReset();
+	lineCount = 0;
+	termLinesBegin = termLines;
+	colorSet = vga_entry_color(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
+	init_gdt();
+	//unsigned char	kernMessage[] = "Merhaba\n DunyaMerhaba DunyaMerhaba DunyaMerhaba DunyaMerhaba DunyaMerhaba DunyaMerhaba DunyaMerhaba DunyaMerhaba Dunya";
+	//unsigned char	gelenVeri = 0;
 
-	enable_cursor((unsigned char)200, (unsigned char)15);
+	//termReset();
+	//initTermLines();
 
-	unsigned char x[] = "abi";
-	unsigned char y[] = "abii";
+	init_idt();
+	kb_init();
+	enable_interrupts();
 
-
-	unsigned char a;
-
-	int diff;
-
-	diff = strcmp(x, y);
-	//putchar('o');
-
-	putnbr(diff);
-	//print(x);
-	return (0);
+	while(42);
+	//write(1, kernMessage, strlen(kernMessage));
 }

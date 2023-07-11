@@ -4,6 +4,10 @@ section .multiboot
 	dd 0x0			; Flags
 	dd - (0x1BADB002 + 0x0)	; Checksum
 
+global stack_bottom
+global stack_top
+
+extern gdt_desc
 
 section .text
 	global start
@@ -11,11 +15,12 @@ section .text
 	global strdup
 	global port_in
 	global port_out
+	global keyboard_handler
+	global enable_interrupts
+	global load_idt
+	global load_gdt
+	extern handle_keyboard_interrupt
 	extern kmain
-
-section .data
-	myVal db 100
-
 
 strlen:
 	push ebp
@@ -37,33 +42,48 @@ strlen:
 		pop ebp
 		ret
 
-section .data
-	bilal db "merhaba falan", 0
+;section .data
+;	bilal db "merhaba falan", 0
 
-strdup:
-	push ebp
-	mov ebp, esp
-	mov edi, [ebp + 8]
+;strdup:
+;	push ebp
+;	mov ebp, esp
+;	mov edi, [ebp + 8]
+;
+;	xor ecx, ecx
+;	duploop:
+;		cmp byte [edi + ecx], 0
+;		je son
+;		mov eax, [edi + ecx]
+;		mov [bilal + ecx], eax
+;		;mov byte [esi + ecx], [edi + eax]
+;
+;		inc ecx
+;		jmp duploop
+;
+;		son:
+;			pop ebp
+;			mov eax, bilal
+;			ret
 
-	xor ecx, ecx
-	duploop:
-		cmp byte [edi + ecx], 0
-		je son
-		mov eax, [edi + ecx]
-		mov [bilal + ecx], eax
-		;mov byte [esi + ecx], [edi + eax]
+load_idt:
+	mov edx, [esp + 4]
+	lidt [edx]
+	ret
 
-		inc ecx
-		jmp duploop
+enable_interrupts:
+	sti
+	ret
 
-		son:
-			pop ebp
-			mov eax, bilal
-			ret
-
+keyboard_handler:
+	pushad
+	cld
+	call handle_keyboard_interrupt
+	popad
+	iretd
 
 port_in:
-	mov dx, [esp + 4]
+	mov edx, [esp + 4]
 	in al, dx
 	ret
 
@@ -73,7 +93,24 @@ port_out:
 	out dx, al
 	ret
 
-	
+load_gdt:
+	mov eax, [esp + 4]
+	lgdt [eax]
+
+	mov ax, 0x10
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov ss, ax
+  
+	mov ax, 0x18
+	mov gs, ax
+
+	jmp 0x08:.flush
+.flush:
+	ret
+
 start:
+	cli				; Disable interrupts
 	call kmain
 	hlt
