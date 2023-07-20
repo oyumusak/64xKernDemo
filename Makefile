@@ -9,7 +9,7 @@
 
 NSRC = boot.s
 CSRC = $(shell find ./src -name "*.c")
-OBJ = kern.o boot.o printFuncs.o keyboard.o gdt.o
+OBJ = kern.o boot.o printFuncs.o keyboard.o
 CFLAGS = -m32 -ffreestanding -fno-builtin -fno-builtin -fno-builtin -nostdlib -nodefaultlibs
 CC = gcc
 AC = nasm

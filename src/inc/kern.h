@@ -9,7 +9,7 @@
 # define COLUMNS_IN_LINE 80
 
 # define IDT_SIZE 256 // Specific to x86 architecture
-# define KERNEL_CODE_SEGMENT_OFFSET 0x8
+# define KERNEL_CODE_SEGMENT_OFFSET 0x10
 # define IDT_INTERRUPT_GATE_32BIT 0x8e
 
 # define PIC1_COMMAND_PORT 0x20
@@ -57,12 +57,14 @@ struct IDT_entry {
 extern unsigned short *termBuff;
 extern const unsigned int	vgaWidth;
 extern const unsigned int	vgaHeight;
-extern unsigned int	prompt;
+extern unsigned int	prompt[8];
 extern const unsigned int	promptMax;
-extern unsigned short termLines[VGAHEIGHT * 2][VGAWIDTH];
+extern unsigned short termLines[8][VGAHEIGHT * 2][VGAWIDTH];
 extern unsigned int	lineCount;
 extern unsigned char colorSet;
 extern unsigned short (*termLinesBegin)[VGAWIDTH];
+extern unsigned int arrowBuff;
+extern unsigned char termNumber;
 
 
 extern struct IDT_entry IDT[IDT_SIZE];
@@ -73,7 +75,7 @@ extern	char			port_in(unsigned short nbr);
 extern	void			port_out(unsigned short portNo, unsigned char val);
 extern void				load_idt(unsigned int* idt_address);
 extern void				enable_interrupts();
-extern	int				strlen(char *str);
+extern	unsigned int				strlen(unsigned char *str);
 
 //keyboard.c funcs
 void	kb_init();
@@ -86,9 +88,8 @@ void	write(int fd, unsigned char *str, unsigned int len);
 void    initTermLines();
 void	print(unsigned char *str);
 void	putnbr(int nbr);
-
-//gdt.c
-void	init_gdt();
+void	ArrowHandler(unsigned char mode);
+void leftRightArrowHandler(unsigned char mode);
 
 
 

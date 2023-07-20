@@ -4,10 +4,6 @@ section .multiboot
 	dd 0x0			; Flags
 	dd - (0x1BADB002 + 0x0)	; Checksum
 
-global stack_bottom
-global stack_top
-
-extern gdt_desc
 
 section .text
 	global start
@@ -18,9 +14,9 @@ section .text
 	global keyboard_handler
 	global enable_interrupts
 	global load_idt
-	global load_gdt
 	extern handle_keyboard_interrupt
 	extern kmain
+
 
 strlen:
 	push ebp
@@ -82,6 +78,7 @@ keyboard_handler:
 	popad
 	iretd
 
+
 port_in:
 	mov edx, [esp + 4]
 	in al, dx
@@ -93,24 +90,8 @@ port_out:
 	out dx, al
 	ret
 
-load_gdt:
-	mov eax, [esp + 4]
-	lgdt [eax]
-
-	mov ax, 0x10
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov ss, ax
-  
-	mov ax, 0x18
-	mov gs, ax
-
-	jmp 0x08:.flush
-.flush:
-	ret
-
 start:
 	cli				; Disable interrupts
 	call kmain
-	hlt
+	infiniteLoop:
+	jmp infiniteLoop

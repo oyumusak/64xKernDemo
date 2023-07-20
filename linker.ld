@@ -8,12 +8,6 @@ SECTIONS
 		*(.multiboot)
 		*(.text)
 	}
-	.data BLOCK(4K) : ALIGN(4K) 
-	{ 
-		*(.data)
-	}
-	.bss BLOCK(4K) : ALIGN(4K)
-	{
-		*(.bss)
-	}
+	.data : { *(.data) }
+	.bss : { *(.bss) }
 }
