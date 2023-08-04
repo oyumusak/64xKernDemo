@@ -274,6 +274,12 @@ void	putnbr(int nbr)
 	{
 		str[0] = '-';
 		write(1, str, 1);
+		if (nbr == 0x80000000)
+		{
+			nbr = -147483648;
+			str[0] = '2';
+			write(1, str, 1);
+		}
 		nbr = nbr * -1;
 		putnbr(nbr);
 	}
