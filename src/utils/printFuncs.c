@@ -274,7 +274,12 @@ void	putnbr(int nbr)
 	{
 		str[0] = '-';
 		write(1, str, 1);
-		if (nbr == 0x80000000)
+		/*
+  		 * 0x80000000 is an unsigned value
+		 * -Wall -Wextra -Werror fails.
+   		 * ~0x7FFFFFFF = 0x80000000
+  		 */
+		if (nbr == ~0x7FFFFFFF)
 		{
 			nbr = -147483648;
 			str[0] = '2';
